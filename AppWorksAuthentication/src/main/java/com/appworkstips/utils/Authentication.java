@@ -1,8 +1,10 @@
 package com.appworkstips.utils;
 
+import com.appworkstips.services.documentum.utils.PropertiesUtils;
+import org.json.JSONObject;
+
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,7 +17,7 @@ import java.util.logging.Logger;
  */
 
 public class Authentication {
-    public static final Logger LOGGER = Logger.getLogger(Authentication.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(Authentication.class.getSimpleName());
     /**
      * Make a RESTful call to OTDS passing in OTDS credentials
 
@@ -28,35 +30,40 @@ public class Authentication {
 
      * @return OTDS Ticket
      */
-    public static String getOTDSTicket() {
+    static String getOTDSTicket() {
         try {
-            URL url =  new URL("http://192.168.56.115:8181/otdsws/rest/authentication/credentials");
+            URL url = new URL(PropertiesUtils.getProperyValue("authentication_url"));
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
 
             OutputStream outputStream = connection.getOutputStream();
-            String input = "{\"userName\": \"otdsdev@AppWorks Platform Partition\", \"password\": \"admin\",\"targetResourceId\":\"5dae6e94-f382-47d5-ba5e-289455e72604\"}";
-            outputStream.write(input.getBytes());
+            outputStream.write(PropertiesUtils.getProperyValue("input_json").getBytes());
             outputStream.flush();
 
             InputStream inputStream = connection.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader reader = new BufferedReader(inputStreamReader);
 
-            String output;
-            while((output = reader.readLine()) != null) {
-                return output;
-            }
-        } catch (MalformedURLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
+            JSONObject jsonObject = new JSONObject(reader.readLine());
+            log(jsonObject);
+            return jsonObject.getString("ticket");
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         return "";
     }
 
-    public static String getSAMLAssertionArtifact() {
+    private static void log(JSONObject jsonObject) {
+        jsonObject.keySet().forEach(keyStr -> {
+            Object keyvalue = jsonObject.get(keyStr);
+            LOGGER.info(String.format("%s == %s", keyStr, keyvalue));
+        });
+    }
+
+    static String getSAMLAssertionArtifact() {
         return "";
     }
 }
