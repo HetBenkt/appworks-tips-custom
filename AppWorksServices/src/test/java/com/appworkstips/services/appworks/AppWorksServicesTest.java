@@ -15,19 +15,19 @@ public class AppWorksServicesTest {
 
     @Test
     public void getRandomIntValueNormalInput() {
-        String randomInt = AppWorksServices.getRandomIntValue("0", "2");
+        String randomInt = AppWorksServices.getRandomIntValueMinMax("0", "2");
         Assert.assertNotEquals("-1", randomInt);
     }
 
     @Test
     public void getRandomIntValueWrongInput() {
-        String randomInt = AppWorksServices.getRandomIntValue("a", "z");
+        String randomInt = AppWorksServices.getRandomIntValueMinMax("a", "z");
         Assert.assertEquals("-1", randomInt);
     }
 
     @Test
     public void getRandomIntValueNegagiveInput() {
-        String randomInt = AppWorksServices.getRandomIntValue("-5", "-10");
+        String randomInt = AppWorksServices.getRandomIntValueMinMax("-5", "-10");
         Assert.assertEquals("-1", randomInt);
     }
 

@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 public class AppWorksServices {
     private final static Logger LOGGER = Logger.getLogger(AppWorksServices.class.getName());
 
-    public static String getRandomIntValue(String minValue, String maxValue) {
+    public static String getRandomIntValueMinMax(String minValue, String maxValue) {
         String result = "";
         Random r = new Random();
         int max = 0;
