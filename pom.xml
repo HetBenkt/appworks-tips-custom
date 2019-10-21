@@ -11,6 +11,7 @@
     <modules>
         <module>DocumentumServices</module>
         <module>AppWorksAuthentication</module>
+        <module>AppWorksServices</module>
     </modules>
 
 
