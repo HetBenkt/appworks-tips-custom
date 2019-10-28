@@ -2,6 +2,7 @@ package com.appworkstips.utils;
 
 import com.appworkstips.services.documentum.utils.PropertiesUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -34,8 +35,8 @@ public class AuthenticationTest {
     @Mock
     private BufferedReader reader;
 
-    @Test
-    public void getOTDSTicket() throws Exception {
+    @Before
+    public void setup() throws Exception {
         PowerMockito.whenNew(URL.class).withAnyArguments().thenReturn(url);
         PowerMockito.when(url.openConnection()).thenReturn(connection);
         PowerMockito.when(connection.getOutputStream()).thenReturn(outputStream);
@@ -43,12 +44,19 @@ public class AuthenticationTest {
         PowerMockito.whenNew(InputStreamReader.class).withAnyArguments().thenReturn(inputStreamReader);
         PowerMockito.whenNew(BufferedReader.class).withAnyArguments().thenReturn(reader);
         PowerMockito.when(reader.readLine()).thenReturn(SAMPLE_JSON_RESULT);
+    }
 
+    @Test
+    public void getOTDSTicket() {
         String otdsTicket = Authentication.getOTDSTicket();
         Assert.assertNotEquals("", otdsTicket);
     }
 
     @Test
     public void getSAMLAssertionArtifact() {
+        String otdsTicket = Authentication.getOTDSTicket();
+        Assert.assertNotEquals("", otdsTicket);
+
+        Authentication.getSAMLAssertionArtifact(otdsTicket);
     }
 }
