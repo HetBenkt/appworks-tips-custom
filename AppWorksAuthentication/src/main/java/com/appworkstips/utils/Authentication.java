@@ -34,6 +34,8 @@ import java.util.logging.Logger;
 
 public class Authentication {
     private static final Logger LOGGER = Logger.getLogger(Authentication.class.getSimpleName());
+    public static final String URI = "http://schemas.cordys.com/AppWorksServices";
+    public static final String PREFIX = "app";
 
     /**
      * Make a ReST call to OTDS passing in OTDS credentials to get an OTDS ticket
@@ -49,24 +51,24 @@ public class Authentication {
      */
     static String getOTDSTicket() {
         try {
-            URL url = new URL(PropertiesUtils.getProperyValue("authentication_url"));
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
+            HttpURLConnection connection = createConnection(PropertiesUtils.getProperyValue("authentication_url"), "POST", "application/json");
 
-            OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(PropertiesUtils.getProperyValue("input_json").getBytes());
-            outputStream.flush();
+            if (connection == null) {
+                return "";
+            } else {
+                OutputStream outputStream = connection.getOutputStream();
+                outputStream.write(PropertiesUtils.getProperyValue("input_json").getBytes());
+                outputStream.flush();
 
-            InputStream inputStream = connection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader reader = new BufferedReader(inputStreamReader);
+                InputStream inputStream = connection.getInputStream();
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader reader = new BufferedReader(inputStreamReader);
 
-
-            JSONObject jsonObject = new JSONObject(reader.readLine());
-            log(jsonObject);
-            return jsonObject.getString("ticket");
+                JSONObject jsonObject = new JSONObject(reader.readLine());
+                log(jsonObject);
+                connection.disconnect();
+                return jsonObject.getString("ticket");
+            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -75,9 +77,24 @@ public class Authentication {
 
     private static void log(JSONObject jsonObject) {
         jsonObject.keySet().forEach(keyStr -> {
-            Object keyvalue = jsonObject.get(keyStr);
-            LOGGER.info(String.format("%s == %s", keyStr, keyvalue));
+            Object keyValue = jsonObject.get(keyStr);
+            LOGGER.info(String.format("%s == %s", keyStr, keyValue));
         });
+    }
+
+    private static HttpURLConnection createConnection(String urlString, String method, String contentType) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setRequestMethod(method);
+            connection.setRequestProperty("Content-Type", contentType);
+            return connection;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return null;
     }
 
     /**
@@ -103,65 +120,60 @@ public class Authentication {
      * @return Random integer value
      */
     static String getRandomIntValueMinMax(String token, String intMinValue, String intMaxValue) {
+
         try {
-            URL url = new URL(PropertiesUtils.getProperyValue("soap_url"));
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
+            HttpURLConnection connection = createConnection(PropertiesUtils.getProperyValue("soap_url"), "POST", "text/xml; charset=utf-8");
 
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            if (connection == null) {
+                return "";
+            } else {
+                SOAPFactory soapFactory = SOAPFactory.newInstance();
+                SOAPMessage soapMessage = MessageFactory.newInstance().createMessage();
+                SOAPEnvelope soapEnvelope = soapMessage.getSOAPPart().getEnvelope();
+                soapEnvelope.addNamespaceDeclaration(PREFIX, URI);
 
-            MessageFactory messageFactory = MessageFactory.newInstance();
-            SOAPMessage soapMessage = messageFactory.createMessage();
-            SOAPEnvelope soapEnvelope = soapMessage.getSOAPPart().getEnvelope();
-            soapEnvelope.addNamespaceDeclaration("app", "http://schemas.cordys.com/AppWorksServices");
-            SOAPHeader soapHeader = soapEnvelope.getHeader();
-            SOAPBody soapBody = soapEnvelope.getBody();
+                SOAPHeader soapHeader = soapEnvelope.getHeader();
+                SOAPBody soapBody = soapEnvelope.getBody();
 
-            SOAPFactory soapFactory = SOAPFactory.newInstance();
+                QName otAuthenticationName = new QName("urn:api.bpm.opentext.com", "OTAuthentication");
+                SOAPHeaderElement otAuthenticationElement = soapHeader.addHeaderElement(otAuthenticationName);
+                SOAPElement authenticationTokenElement = otAuthenticationElement.addChildElement("AuthenticationToken");
+                authenticationTokenElement.setTextContent(token);
 
-            QName OTAuthenticationName = new QName("urn:api.bpm.opentext.com", "OTAuthentication");
-            SOAPHeaderElement OTAuthenticationElement = soapHeader.addHeaderElement(OTAuthenticationName);
-            SOAPElement authenticationTokenElement = OTAuthenticationElement.addChildElement("AuthenticationToken");
-            authenticationTokenElement.setTextContent(token);
+                Name operationName = soapFactory.createName("getRandomIntValueMinMax", PREFIX, URI);
+                SOAPBodyElement operationElement = soapBody.addBodyElement(operationName);
 
-            Name operationName = soapFactory.createName("getRandomIntValueMinMax", "app", "http://schemas.cordys.com/AppWorksServices");
-            SOAPBodyElement operationElement = soapBody.addBodyElement(operationName);
+                Name stringParamName = soapFactory.createName("stringParam", PREFIX, URI);
+                SOAPElement stringParamElement = operationElement.addChildElement(stringParamName);
+                stringParamElement.setTextContent(intMinValue);
+                Name stringParam1Name = soapFactory.createName("stringParam1", PREFIX, URI);
+                SOAPElement stringParam1Element = operationElement.addChildElement(stringParam1Name);
+                stringParam1Element.setTextContent(intMaxValue);
 
-            Name stringParamName = soapFactory.createName("stringParam", "app", "http://schemas.cordys.com/AppWorksServices");
-            SOAPElement stringParamElement = operationElement.addChildElement(stringParamName);
-            stringParamElement.setTextContent(intMinValue);
-            Name stringParam1Name = soapFactory.createName("stringParam1", "app", "http://schemas.cordys.com/AppWorksServices");
-            SOAPElement stringParam1Element = operationElement.addChildElement(stringParam1Name);
-            stringParam1Element.setTextContent(intMaxValue);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                soapMessage.writeTo(out);
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            soapMessage.writeTo(out);
-            String inputString = new String(out.toByteArray());
-            String formattedSOAPRequest = formatXML(inputString);
-            LOGGER.info(formattedSOAPRequest);
+                byte[] byteArray = out.toByteArray();
+                out.close();
 
-            byte[] buffer = inputString.getBytes();
-            byteArrayOutputStream.write(buffer);
+                connection.setRequestProperty("Content-Length", String.valueOf(byteArray.length));
+                connection.setRequestProperty("SOAPAction", "AuthenticationQuery");
 
-            byte[] byteArray = byteArrayOutputStream.toByteArray();
-            connection.setRequestProperty("Content-Length", String.valueOf(byteArray.length));
-            connection.setRequestProperty("SOAPAction", "AuthenticationQuery");
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
+                OutputStream outputStream = connection.getOutputStream();
+                outputStream.write(byteArray);
+                outputStream.close();
 
-            OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(byteArray);
-            outputStream.close();
+                InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8"));
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String outputString = bufferedReader.readLine();
+                bufferedReader.close();
+                inputStreamReader.close();
 
-            InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8"));
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String outputString = bufferedReader.readLine();
-            String formattedSOAPResponse = formatXML(outputString);
-            LOGGER.info(formattedSOAPResponse);
-
-            return getRandomIntValue(outputString);
+                String formattedSOAPResponse = formatXML(outputString);
+                LOGGER.info(formattedSOAPResponse);
+                connection.disconnect();
+                return getRandomIntValue(outputString);
+            }
         } catch (IOException | SOAPException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -191,7 +203,6 @@ public class Authentication {
         } catch (TransformerException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private static Document parseXmlFile(String unformattedXml) {
