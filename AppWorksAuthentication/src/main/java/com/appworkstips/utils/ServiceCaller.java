@@ -36,6 +36,8 @@ class ServiceCaller {
                 return result;
             } else {
                 SOAPMessage soapMessageResponse = callService(connection, soapMessage);
+                String message = soapMessageToString(soapMessageResponse);
+                LOGGER.info(message);
                 result = soapMessageResponse.getSOAPBody().getTextContent();
                 connection.disconnect();
                 LOGGER.info(result);
@@ -113,10 +115,12 @@ class ServiceCaller {
                 return result;
             } else {
                 SOAPMessage soapMessageResponse = callService(connection, soapMessage);
+                String message = soapMessageToString(soapMessageResponse);
+                LOGGER.info(message);
                 result.addAll(parseToList(soapMessageResponse));
                 connection.disconnect();
-                String message = String.valueOf(result);
-                LOGGER.info(message);
+                String messageLog = String.valueOf(result);
+                LOGGER.info(messageLog);
                 return result;
             }
         } catch (IOException | SOAPException e) {
@@ -222,5 +226,19 @@ class ServiceCaller {
         SOAPHeaderElement otAuthenticationElement = soapHeader.addHeaderElement(otAuthenticationName);
         SOAPElement authenticationTokenElement = otAuthenticationElement.addChildElement("AuthenticationToken");
         authenticationTokenElement.setTextContent(token);
+    }
+
+    private static String soapMessageToString(SOAPMessage message) {
+        String result = null;
+
+        if (message != null) {
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                message.writeTo(baos);
+                result = baos.toString();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
+        return result;
     }
 }

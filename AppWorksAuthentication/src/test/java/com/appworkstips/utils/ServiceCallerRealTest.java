@@ -13,6 +13,8 @@ public class ServiceCallerRealTest {
     @Test
     public void getAllUsers() {
         String otdsTicket = Authentication.getOTDSTicket();
+        Assert.assertNotEquals("", otdsTicket);
+
         List<User> allUsers = ServiceCaller.getAllUsers(otdsTicket, "");
         Assert.assertNotEquals(0, allUsers.size());
     }
