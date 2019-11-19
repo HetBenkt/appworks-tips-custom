@@ -12,13 +12,4 @@ public class AuthenticationRealTest {
         String otdsTicket = Authentication.getOTDSTicket();
         Assert.assertNotEquals("", otdsTicket);
     }
-
-    @Test
-    public void getRandomIntValueMinMax() {
-        String otdsTicket = Authentication.getOTDSTicket();
-        Assert.assertNotEquals("", otdsTicket);
-
-        String randomIntValueMinMax = Authentication.getRandomIntValueMinMax(otdsTicket, "0", "120");
-        Assert.assertNotEquals("", randomIntValueMinMax);
-    }
 }
