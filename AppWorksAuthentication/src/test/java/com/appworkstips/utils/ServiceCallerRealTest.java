@@ -28,4 +28,12 @@ public class ServiceCallerRealTest {
         Assert.assertNotEquals("", randomIntValueMinMax);
     }
 
+    @Test
+    public void createCategoryEntity() {
+        String otdsTicket = Authentication.getOTDSTicket();
+        Assert.assertNotEquals("", otdsTicket);
+
+        String catId = ServiceCaller.createCategoryEntity(otdsTicket, true, "myName", "myDescription");
+        Assert.assertNotEquals("", catId);
+    }
 }
