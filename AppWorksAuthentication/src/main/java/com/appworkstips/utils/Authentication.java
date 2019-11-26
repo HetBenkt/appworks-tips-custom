@@ -73,7 +73,7 @@ public class Authentication {
         });
     }
 
-    static HttpURLConnection createConnection(String urlString, String method, String contentType) {
+    public static HttpURLConnection createConnection(String urlString, String method, String contentType) {
         try {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
