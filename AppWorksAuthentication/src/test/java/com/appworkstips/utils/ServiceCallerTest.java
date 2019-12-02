@@ -1,5 +1,7 @@
 package com.appworkstips.utils;
 
+import com.appworkstips.commands.CreateCategoryEntity;
+import com.appworkstips.commands.GetAllUsers;
 import com.appworkstips.commands.GetRandomIntValueMinMax;
 import com.appworkstips.models.User;
 import com.appworkstips.services.documentum.utils.PropertiesUtils;
@@ -11,21 +13,23 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.xml.soap.SOAPException;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.util.List;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Authentication.class, ServiceCaller.class, PropertiesUtils.class, ServiceUtils.class})
+@PrepareForTest({Authentication.class, PropertiesUtils.class, ServiceUtils.class})
 public class ServiceCallerTest extends GeneralSetup {
-
     @Test
-    public void getAllUsers() throws IOException {
+    public void getAllUsers() throws IOException, SOAPException {
         PowerMockito.when(getReader().readLine()).thenReturn(IConstants.SAMPLE_JSON_RESULT, IConstants.SAMPLE_ALL_USERS_SOAP_RESULT);
         String otdsTicket = Authentication.getOTDSTicket();
         Assert.assertNotEquals("", otdsTicket);
 
-        List<User> allUsers = new ServiceCaller().getAllUsers(otdsTicket, "");
-        Assert.assertEquals(1, allUsers.size());
+        GetAllUsers getAllUsers = new GetAllUsers(otdsTicket, "");
+        getAllUsers.execute(getAllUsers.buildSoapMessage());
+        List<User> users = ResultParser.getInstance().parseToList();
+        Assert.assertEquals(1, users.size());
     }
 
     @Test
@@ -35,18 +39,20 @@ public class ServiceCallerTest extends GeneralSetup {
         Assert.assertNotEquals("", otdsTicket);
 
         GetRandomIntValueMinMax getRandomIntValueMinMax = new GetRandomIntValueMinMax(otdsTicket, "0", "120");
-        getRandomIntValueMinMax.execute();
+        getRandomIntValueMinMax.execute(getRandomIntValueMinMax.buildSoapMessage());
         String result = ResultParser.getInstance().getSoapMessage().getSOAPBody().getTextContent();
         Assert.assertEquals("73", result);
     }
 
     @Test
-    public void createCategoryEntity() throws IOException {
+    public void createCategoryEntity() throws IOException, SOAPException, XPathExpressionException {
         PowerMockito.when(getReader().readLine()).thenReturn(IConstants.SAMPLE_JSON_RESULT, IConstants.SAMPLE_CREATE_CATEGORY_ENTITY_RESULT);
         String otdsTicket = Authentication.getOTDSTicket();
         Assert.assertNotEquals("", otdsTicket);
 
-        String catId = new ServiceCaller().createCategoryEntity(otdsTicket, true, "myName", "myDescription");
-        Assert.assertNotEquals("", catId);
+        CreateCategoryEntity createCategoryEntity = new CreateCategoryEntity(otdsTicket, true, "MyName", "MyDescription");
+        createCategoryEntity.execute(createCategoryEntity.buildSoapMessage());
+        String catId = ResultParser.getInstance().getValue("//*[local-name() = 'CreatecategoryResponse']/*[local-name() = 'category']/*[local-name() = 'category-id']/*[local-name() = 'Id']/text()");
+        Assert.assertEquals("983043", catId);
     }
 }

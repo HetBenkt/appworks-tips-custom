@@ -8,18 +8,18 @@ import org.w3c.dom.NodeList;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import java.io.ByteArrayOutputStream;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ResultParser {
     private static final Logger LOGGER = Logger.getLogger(ResultParser.class.getSimpleName());
     private static ResultParser instance;
     private SOAPMessage soapMessage;
-    private String result;
 
     public static ResultParser getInstance() {
         if (instance == null)
@@ -55,26 +55,19 @@ public class ResultParser {
         return userList;
     }
 
-    public void soapMessageToString() {
-        if (soapMessage != null) {
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                soapMessage.writeTo(baos);
-                result = baos.toString();
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-        }
+    String getValue(String expression) throws XPathExpressionException, SOAPException {
+        LOGGER.info(expression);
+        XPathFactory xPathFactory = XPathFactory.newInstance();
+        XPath xPath = xPathFactory.newXPath();
+        return xPath.compile(expression).evaluate(soapMessage.getSOAPBody());
     }
 
     SOAPMessage getSoapMessage() {
-        return soapMessage;
+        return this.soapMessage;
     }
 
     public void setSoapMessage(SOAPMessage soapMessage) {
         this.soapMessage = soapMessage;
     }
 
-    public String getResult() {
-        return result;
-    }
 }
