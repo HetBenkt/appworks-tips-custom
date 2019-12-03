@@ -1,26 +1,20 @@
 package com.appworkstips.commands;
 
 import com.appworkstips.GenericService;
+import com.appworkstips.ISoapMessage;
 import com.appworkstips.utils.ServiceUtils;
 
 import javax.xml.soap.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GetRandomIntValueMinMax extends GenericService {
+public class GetRandomIntValueMinMax extends GenericService implements ISoapMessage {
     private static final Logger LOGGER = Logger.getLogger(GetRandomIntValueMinMax.class.getSimpleName());
 
     private final String token;
     private final String intMinValue;
     private final String intMaxValue;
 
-    /**
-     * Constructor to init fields
-     *
-     * @param token       is the login token that contains the login credentials
-     * @param intMinValue is the filter input for the minimal value
-     * @param intMaxValue is the filter input for the maximum value
-     */
     public GetRandomIntValueMinMax(String token, String intMinValue, String intMaxValue) {
         this.token = token;
         this.intMinValue = intMinValue;
@@ -41,8 +35,6 @@ public class GetRandomIntValueMinMax extends GenericService {
      * </app:getRandomIntValueMinMax>
      * </SOAP:Body>
      * </SOAP:Envelope>
-     *
-     * @return the result message
      */
     public SOAPMessage buildSoapMessage() {
         final String URI = "http://schemas.cordys.com/AppWorksServices";

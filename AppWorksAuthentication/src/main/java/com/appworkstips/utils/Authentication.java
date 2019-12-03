@@ -16,7 +16,6 @@ import static java.util.Objects.requireNonNull;
  * Invoking AppWorks Platform REST APIs requires BPMService.war, but is not available yet for 16.6
  * https://forums.opentext.com/forums/discussion/comment/932897#Comment_932897
  */
-
 public class Authentication {
     private static final Logger LOGGER = Logger.getLogger(Authentication.class.getSimpleName());
 

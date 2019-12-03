@@ -1,6 +1,7 @@
 package com.appworkstips.commands;
 
 import com.appworkstips.GenericService;
+import com.appworkstips.ISoapMessage;
 import com.appworkstips.utils.ServiceUtils;
 
 import javax.xml.namespace.QName;
@@ -8,7 +9,7 @@ import javax.xml.soap.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CreateCategoryEntity extends GenericService {
+public class CreateCategoryEntity extends GenericService implements ISoapMessage {
     private static final Logger LOGGER = Logger.getLogger(CreateCategoryEntity.class.getSimpleName());
 
     private final String token;
@@ -16,11 +17,6 @@ public class CreateCategoryEntity extends GenericService {
     private final String name;
     private final String description;
 
-    /**
-     * Constructor to init fields
-     *
-     * @param token is the login token that contains the login credentials
-     */
     public CreateCategoryEntity(String token, boolean isEnabled, String name, String description) {
         this.token = token;
         this.isEnabled = isEnabled;
@@ -45,9 +41,8 @@ public class CreateCategoryEntity extends GenericService {
      * </Createcategory>
      * </SOAP:Body>
      * </SOAP:Envelope>
-     *
-     * @return the category ID
      */
+    @Override
     public SOAPMessage buildSoapMessage() {
         try {
             SOAPMessage soapMessage = MessageFactory.newInstance().createMessage();

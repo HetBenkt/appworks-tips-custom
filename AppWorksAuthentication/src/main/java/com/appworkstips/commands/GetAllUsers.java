@@ -1,6 +1,7 @@
 package com.appworkstips.commands;
 
 import com.appworkstips.GenericService;
+import com.appworkstips.ISoapMessage;
 import com.appworkstips.utils.ServiceUtils;
 
 import javax.xml.namespace.QName;
@@ -8,18 +9,12 @@ import javax.xml.soap.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GetAllUsers extends GenericService {
+public class GetAllUsers extends GenericService implements ISoapMessage {
     private static final Logger LOGGER = Logger.getLogger(GetAllUsers.class.getSimpleName());
 
     private final String token;
     private final String contains;
 
-    /**
-     * Constructor to init fields
-     *
-     * @param token    is the login token that contains the login credentials
-     * @param contains is the filter input for the minimal value
-     */
     public GetAllUsers(String token, String contains) {
         this.token = token;
         this.contains = contains;
@@ -38,8 +33,6 @@ public class GetAllUsers extends GenericService {
      * </GetAllUsers>
      * </SOAP:Body>
      * </SOAP:Envelope>
-     *
-     * @return the SOAPMessage object to sent out
      */
     public SOAPMessage buildSoapMessage() {
         try {
