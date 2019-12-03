@@ -52,10 +52,10 @@ public class CreateCategoryEntity extends GenericService implements ISoapMessage
             SOAPBody soapBody = soapEnvelope.getBody();
 
             QName operationCreateCategory = new QName("http://schemas/AppWorksTipsAppWorks/category/operations", "Createcategory");
-            SOAPBodyElement operationElementCreatecategory = soapBody.addBodyElement(operationCreateCategory);
+            SOAPBodyElement operationElementCreateCategory = soapBody.addBodyElement(operationCreateCategory);
 
             QName operationCategoryCreate = new QName("http://schemas/AppWorksTipsAppWorks/category", "category-create");
-            SOAPElement elementCategoryCreate = operationElementCreatecategory.addChildElement(operationCategoryCreate);
+            SOAPElement elementCategoryCreate = operationElementCreateCategory.addChildElement(operationCategoryCreate);
             SOAPElement catIsEnabled = elementCategoryCreate.addChildElement("cat_is_enabled");
             catIsEnabled.setTextContent(String.valueOf(isEnabled));
             SOAPElement catName = elementCategoryCreate.addChildElement("cat_name");
