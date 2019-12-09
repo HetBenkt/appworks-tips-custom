@@ -1,9 +1,6 @@
 package com.appworkstips.utils;
 
-import com.appworkstips.commands.CreateCategoryEntity;
-import com.appworkstips.commands.GetAllUsers;
-import com.appworkstips.commands.GetRandomIntValueMinMax;
-import com.appworkstips.commands.ReadCategoryEntity;
+import com.appworkstips.commands.*;
 import com.appworkstips.models.User;
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,4 +56,14 @@ public class ServiceCallerRealTest {
         String catId = ResultParser.getInstance().getValue("//*[local-name() = 'ReadcategoryResponse']/*[local-name() = 'category']/*[local-name() = 'category-id']/*[local-name() = 'Id']/text()");
         Assert.assertNotEquals("", catId);
     }
+
+    @Test
+    public void deleteCategoryEntity() throws SOAPException, XPathExpressionException {
+        DeleteCategoryEntity deleteCategoryEntity = new DeleteCategoryEntity(otdsTicket, "0800276907f1a1ea825c64f7cdc2116a.983042");
+        deleteCategoryEntity.execute(deleteCategoryEntity.buildSoapMessage());
+
+        String catId = ResultParser.getInstance().getValue("//*[local-name() = 'DeletecategoryResponse']/text()");
+        Assert.assertEquals("", catId);
+    }
+
 }
