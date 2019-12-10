@@ -66,4 +66,12 @@ public class ServiceCallerRealTest {
         Assert.assertEquals("", catId);
     }
 
+    @Test
+    public void getAllCategoryEntity() throws SOAPException, XPathExpressionException {
+        GetAllCategoryEntity getAllCategoryEntity = new GetAllCategoryEntity(otdsTicket, 0, 20);
+        getAllCategoryEntity.execute(getAllCategoryEntity.buildSoapMessage());
+
+        String catId = ResultParser.getInstance().getValue("//*[local-name() = 'AllCategoriesResponse']/*[local-name() = 'category']/*[local-name() = 'category-id']/*[local-name() = 'Id']/text()");
+        Assert.assertNotEquals("", catId);
+    }
 }
