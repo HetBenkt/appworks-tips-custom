@@ -16,7 +16,7 @@ public class AuthenticationTest extends GeneralSetup {
 
     @Test
     public void getOTDSTicket() throws IOException {
-        PowerMockito.when(getReader().readLine()).thenReturn(IConstants.SAMPLE_JSON_RESULT);
+        PowerMockito.when(getReader().readLine()).thenReturn(IConstants.SAMPLE_OTDS_AUTH_JSON_RESULT);
         String otdsTicket = Authentication.getOTDSTicket();
         Assert.assertNotEquals("", otdsTicket);
     }

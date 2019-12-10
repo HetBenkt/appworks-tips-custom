@@ -23,7 +23,7 @@ public class ServiceCallerTest extends GeneralSetup {
 
     @Before
     public void getOTDSTicker() throws IOException {
-        PowerMockito.when(getReader().readLine()).thenReturn(IConstants.SAMPLE_JSON_RESULT);
+        PowerMockito.when(getReader().readLine()).thenReturn(IConstants.SAMPLE_OTDS_AUTH_JSON_RESULT);
         otdsTicket = Authentication.getOTDSTicket();
         Assert.assertNotEquals("", otdsTicket);
     }
