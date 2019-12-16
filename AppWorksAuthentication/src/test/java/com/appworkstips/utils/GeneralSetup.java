@@ -38,4 +38,12 @@ public class GeneralSetup {
     BufferedReader getReader() {
         return reader;
     }
+
+    HttpURLConnection getConnection() {
+        return connection;
+    }
+
+    URL getUrl() {
+        return url;
+    }
 }
