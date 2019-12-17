@@ -7,19 +7,26 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.util.List;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Authentication.class, PropertiesUtils.class, ServiceUtils.class})
+@PrepareForTest({Authentication.class, PropertiesUtils.class, ServiceUtils.class, CreateCategoryEntity.class, MessageFactory.class})
 public class ServiceCallerTest extends GeneralSetup {
     private String otdsTicket;
+    @Mock
+    private MessageFactory messageFactory;
+    @Mock
+    private SOAPException exception;
 
     @Before
     public void getOTDSTicker() throws IOException {
@@ -59,6 +66,19 @@ public class ServiceCallerTest extends GeneralSetup {
 
         String catId = ResultParser.getInstance().getValue("//*[local-name() = 'CreatecategoryResponse']/*[local-name() = 'category']/*[local-name() = 'category-id']/*[local-name() = 'Id']/text()");
         Assert.assertEquals("983043", catId);
+    }
+
+    @Test
+    public void createCategoryEntityException() throws Exception {
+        PowerMockito.when(getReader().readLine()).thenReturn(IConstants.SAMPLE_CREATE_CATEGORY_ENTITY_RESULT);
+        PowerMockito.mockStatic(MessageFactory.class);
+        PowerMockito.when(MessageFactory.newInstance()).thenReturn(messageFactory);
+        PowerMockito.when(messageFactory.createMessage()).thenThrow(exception);
+        PowerMockito.when(exception.getMessage()).thenReturn("SOAPException");
+
+        CreateCategoryEntity createCategoryEntity = new CreateCategoryEntity(otdsTicket, true, "MyName", "MyDescription");
+        SOAPMessage soapMessage = createCategoryEntity.buildSoapMessage();
+        Assert.assertNull(soapMessage);
     }
 
     @Test
