@@ -69,8 +69,7 @@ public class ServiceCallerTest extends GeneralSetup {
     }
 
     @Test
-    public void createCategoryEntityException() throws Exception {
-        PowerMockito.when(getReader().readLine()).thenReturn(IConstants.SAMPLE_CREATE_CATEGORY_ENTITY_RESULT);
+    public void exceptions() throws Exception {
         PowerMockito.mockStatic(MessageFactory.class);
         PowerMockito.when(MessageFactory.newInstance()).thenReturn(messageFactory);
         PowerMockito.when(messageFactory.createMessage()).thenThrow(exception);
@@ -78,6 +77,26 @@ public class ServiceCallerTest extends GeneralSetup {
 
         CreateCategoryEntity createCategoryEntity = new CreateCategoryEntity(otdsTicket, true, "MyName", "MyDescription");
         SOAPMessage soapMessage = createCategoryEntity.buildSoapMessage();
+        Assert.assertNull(soapMessage);
+
+        ReadCategoryEntity readCategoryEntity = new ReadCategoryEntity(otdsTicket, "0800276907f1a1ea825c64f7cdc2116a.655361");
+        soapMessage = readCategoryEntity.buildSoapMessage();
+        Assert.assertNull(soapMessage);
+
+        DeleteCategoryEntity deleteCategoryEntity = new DeleteCategoryEntity(otdsTicket, "0800276907f1a1ea825c64f7cdc2116a.655361");
+        soapMessage = deleteCategoryEntity.buildSoapMessage();
+        Assert.assertNull(soapMessage);
+
+        GetAllCategoryEntity getAllCategoryEntity = new GetAllCategoryEntity(otdsTicket, 0, 10);
+        soapMessage = getAllCategoryEntity.buildSoapMessage();
+        Assert.assertNull(soapMessage);
+
+        GetAllUsers getAllUsers = new GetAllUsers(otdsTicket, "");
+        soapMessage = getAllUsers.buildSoapMessage();
+        Assert.assertNull(soapMessage);
+
+        GetRandomIntValueMinMax getRandomIntValueMinMax = new GetRandomIntValueMinMax(otdsTicket, "0", "10");
+        soapMessage = getRandomIntValueMinMax.buildSoapMessage();
         Assert.assertNull(soapMessage);
     }
 
